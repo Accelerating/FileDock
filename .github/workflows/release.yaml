@@ -59,13 +59,13 @@ jobs:
           cp -r frontend/build/client backend/assets
 
       # Build and upload Rust binary
-      - uses: taiki-e/upload-rust-binary-action@v1
+      - name: Build and upload binary
+        uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: filedock
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          manifest_path: backend/Cargo.toml
-          # Don't archive, upload binary directly
           archive: filedock-$target-$tag
           tar: none
           zip: none
+        working-directory: backend
