@@ -64,5 +64,8 @@ jobs:
           bin: filedock
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          archive: filedock-${{ github.ref_name }}-${{ matrix.target }}
           manifest_path: backend/Cargo.toml
+          # Don't archive, upload binary directly
+          archive: filedock-$target-$tag
+          tar: none
+          zip: none
