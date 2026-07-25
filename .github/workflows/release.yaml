@@ -15,7 +15,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: taiki-e/create-gh-release-action@v1
         with:
-          # (required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
 
   upload-assets:
@@ -23,16 +22,10 @@ jobs:
     strategy:
       matrix:
         include:
-          # - target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-22.04
-          # - target: x86_64-unknown-linux-gnu
-          #   os: ubuntu-22.04
           - target: x86_64-unknown-linux-musl
             os: ubuntu-22.04
           - target: aarch64-unknown-linux-musl
             os: ubuntu-22.04
-          # - target: universal-apple-darwin
-          #   os: macos-latest
           - target: aarch64-apple-darwin
             os: macos-latest
           - target: x86_64-pc-windows-msvc
@@ -40,18 +33,35 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install musl-tools for static linking
+
+      # Install Node.js for frontend build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Install musl-tools for Linux static linking
+      - name: Install musl-tools
         if: contains(matrix.target, 'musl')
         run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      # Build frontend
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+      # Copy frontend assets to backend
+      - name: Copy frontend assets
+        run: |
+          rm -rf backend/assets
+          cp -r frontend/build/client backend/assets
+
+      # Build and upload Rust binary
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
-          # Note that glob pattern is not supported yet.
           bin: filedock
-          # (optional) Target triple, default is host triple.
           target: ${{ matrix.target }}
-          # (required) GitHub token for uploading assets to GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
-          archive: baton-${{ github.ref_name }}-${{ matrix.target }}
-
-
+          archive: filedock-${{ github.ref_name }}-${{ matrix.target }}
