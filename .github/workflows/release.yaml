@@ -52,11 +52,12 @@ jobs:
       - name: Build frontend
         run: cd frontend && npm run build
 
-      # Copy frontend assets to backend
+      # Copy frontend assets to backend (cross-platform)
       - name: Copy frontend assets
         run: |
-          rm -rf backend/assets
-          cp -r frontend/build/client backend/assets
+          if (Test-Path backend/assets) { Remove-Item -Recurse -Force backend/assets }
+          Copy-Item -Recurse frontend/build/client backend/assets
+        shell: pwsh
 
       # Build and upload Rust binary
       - uses: taiki-e/upload-rust-binary-action@v1
@@ -65,8 +66,6 @@ jobs:
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
           manifest-path: backend/Cargo.toml
-          # Archive name: filedock-{target}-{tag}
           archive: $bin-$target-$tag
-          # Don't compress, upload binary directly
           tar: none
           zip: none
