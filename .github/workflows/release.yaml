@@ -26,10 +26,6 @@ jobs:
             os: ubuntu-22.04
           - target: aarch64-unknown-linux-musl
             os: ubuntu-22.04
-          - target: aarch64-apple-darwin
-            os: macos-latest
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +38,6 @@ jobs:
 
       # Install musl-tools for Linux static linking
       - name: Install musl-tools
-        if: contains(matrix.target, 'musl')
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       # Build frontend
@@ -52,12 +47,11 @@ jobs:
       - name: Build frontend
         run: cd frontend && npm run build
 
-      # Copy frontend assets to backend (cross-platform)
+      # Copy frontend assets to backend
       - name: Copy frontend assets
         run: |
-          if (Test-Path backend/assets) { Remove-Item -Recurse -Force backend/assets }
-          Copy-Item -Recurse frontend/build/client backend/assets
-        shell: pwsh
+          rm -rf backend/assets
+          cp -r frontend/build/client backend/assets
 
       # Build and upload Rust binary
       - uses: taiki-e/upload-rust-binary-action@v1
