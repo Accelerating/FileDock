@@ -1,0 +1,53 @@
+# Pi coding agent
+.agents/
+skills-lock.json
+
+# Rust
+backend/target/
+backend/Cargo.lock
+
+# Node.js
+frontend/node_modules/
+frontend/build/
+frontend/.react-router/
+
+# Frontend assets copied to backend
+backend/assets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Build artifacts
+dist/
+out/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.orig
