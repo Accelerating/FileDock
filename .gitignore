@@ -14,6 +14,9 @@ frontend/.react-router/
 # Frontend assets copied to backend
 backend/assets/
 
+# Runtime data directory
+backend/file_dock_data/
+
 # IDE
 .vscode/
 .idea/
