@@ -60,5 +60,6 @@ jobs:
           target: ${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
           manifest-path: backend/Cargo.toml
+          archive: filedock-$tag-$target
           tar: unix
           zip: none
