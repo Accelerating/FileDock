@@ -7,7 +7,6 @@ mod vfs;
 
 use axum::extract::DefaultBodyLimit;
 use axum::Router;
-use axum::response::IntoResponse;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
@@ -47,24 +46,10 @@ async fn main() -> anyhow::Result<()> {
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http());
 
-    // Build WebDAV application (port 17777)
+    // Build WebDAV application (port 17777) using dav-server library
     // Set max body size to 10GB for large file uploads
     let webdav_app = Router::new()
-        .merge(protocol::webdav::router(fs.clone()))
-        .fallback(|req: axum::http::Request<axum::body::Body>| async move {
-            let path = req.uri().path();
-            // Redirect /protocol/webdav/ to /protocol/webdav
-            if path == "/protocol/webdav/" {
-                return axum::response::Redirect::permanent("/protocol/webdav").into_response();
-            }
-            // Check if this is a WebDAV request
-            if path.starts_with("/protocol/webdav") {
-                // This should have been handled by the WebDAV router
-                // Return 404 if it wasn't
-                return axum::http::StatusCode::NOT_FOUND.into_response();
-            }
-            axum::http::StatusCode::NOT_FOUND.into_response()
-        })
+        .merge(protocol::webdav::router(data_dir.clone()))
         .layer(DefaultBodyLimit::max(10 * 1024 * 1024 * 1024)) // 10GB
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http());
